@@ -1,0 +1,27 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'default.html' %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+<!-- Название у нас будет Product -->
+{% block title %}
+Посты
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
+{% block content %}
+    <h3>Сегодня: {% current_time '%d %b %Y' %} </h3>
+    <h2> Пост {{ one_post.title|censor }} от : {{ one_post.creation|date:'d.m.Y' }} </h2>
+       <table>
+           <tr>
+               <td>Полный текст:</td>
+           </tr>
+
+           <tr>
+               <td>{{ one_post.category}}</td>
+               <td>{{ one_post.title}}</td>
+               <td>{{ one_post.content|safe }}</td>
+           </tr>
+
+       </table>
+{% endblock content %}

@@ -1,52 +1,64 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
 {% extends 'default.html' %}
 {% load custom_filters %}
 {% load custom_tags %}
 
+<!-- Название у нас будет products -->
 {% block title %}
-Объявления
+News
 {% endblock title %}
 
 {% block content %}
+<h1>Список новостей</h1>
 
-<h1>Список объявлений на: {% current_time %} </h1>
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+   </form>
+
    <hr>
+   <h3>Сегодня: {% current_time %} </h3>
+   <h3> Всего постов: {{ news_count }} </h3>
 
-   {% if post_list %}
-    <div class="container">
-        <table class="table table-hover">
+
+   {% if comment_flist %}
+              <table class="table table-hover">
           <thead>
             <tr>
+                <th scope="col">Id</th>
               <th scope="col">Автор</th>
               <th scope="col">Создано</th>
-              <th scope="col">Категория</th>
-                <th scope="col">Название</th>
                 <th scope="col">Текст</th>
+                <th scope="col">Согласован автором</th>
             </tr>
           </thead>
   <tbody>
 
 
-           {% for one in post_list %}
+           {% for one in comment_flist %}
             <tr class="light">
-                <td>{{ one.author }}</td>
-               <td>{{ one.creation }}</td>
-                <td>{{ one.category }}</td>
-               <td>{{ one.title|censor }}</td>
-               <td>{{ one.content| safe }}</td>
-
-                <tr class="light">
-                    <td>{{ one.last_comment }} от {{ one.last_comment_author }}</td>
-                </tr>
+               <!-- Не забываем, что переменные в шаблоне ничем не отличаются
+                от переменных в Python. Здесь также можно получать доступ к
+                полям объекта модели. Например, здесь мы выводим имя,
+                в следующем столбце описание, и т.д.  -->
+                <td>{{ one.id }}</td>
+                <td>{{ one.user }}</td>
+               <td>{{ one.creation|date:'d.M.Y' }}</td>
+               <td>{{ one.text|truncatechars:20|censor }}</td>
+                <td>{{ one.approved }}</td>
            </tr>
            {% endfor %}
          </tbody>
        </table>
-    </div>
    {% else %}
-       <h2>{{ obj_type2 }} пока нет.</h2>
+       <h2>Постов пока нет.</h2>
    {% endif %}
 
 
+<div class="container">
   <ul class="pagination">
         {% if page_obj.has_previous %}
         <li class="page-item">
@@ -84,6 +96,7 @@
        {% endif %}
    {% endif %}
   </ul>
+</div>
 
 
 {% endblock content %}
