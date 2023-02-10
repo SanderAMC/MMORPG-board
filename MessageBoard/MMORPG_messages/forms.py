@@ -1,7 +1,7 @@
 from allauth.account.forms import SignupForm
 from django import forms
 from django.contrib.auth.models import User
-from .models import Post
+from .models import Post, Comment
 from django.core.exceptions import ValidationError
 from ckeditor.widgets import CKEditorWidget
 
@@ -31,21 +31,27 @@ class UserForm(forms.ModelForm):
 
 class PostForm(forms.ModelForm):
 
-    content = forms.CharField(widget=CKEditorWidget, label='')
+    # content = forms.CharField(widget=CKEditorWidget, label='Ваше объявление')
     class Meta:
        model = Post
        fields = [
            'category',
            'title',
+           'content',
        ]
 
     def clean(self):
        cleaned_data = super().clean()
-       title = cleaned_data.get("title")
-       if title is not None and len(title) < 6:
-           raise ValidationError({
-               "title": "Заголовок должен быть длиннее 5 символов"
-           })
-
        return cleaned_data
 
+class CommentForm(forms.ModelForm):
+
+    class Meta:
+       model = Comment
+       fields = [
+           'text',
+       ]
+
+    def clean(self):
+       cleaned_data = super().clean()
+       return cleaned_data

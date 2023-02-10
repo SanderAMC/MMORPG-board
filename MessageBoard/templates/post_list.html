@@ -21,6 +21,7 @@
               <th scope="col">Категория</th>
                 <th scope="col">Название</th>
                 <th scope="col">Текст</th>
+                <th scope="col">Варианты действий</th>
             </tr>
           </thead>
   <tbody>
@@ -31,11 +32,19 @@
                 <td>{{ one.author }}</td>
                <td>{{ one.creation }}</td>
                 <td>{{ one.category }}</td>
-               <td>{{ one.title|censor }}</td>
+               <td><a href="/post/{{ one.id }}/">{{ one.title|censor }}</a></td>
                <td>{{ one.content| safe }}</td>
-
+                {% if one.to_comment %}
+                    <td><button> <a href="/post/{{ one.id }}/create/">Коммен.</a> </button></td>
+                {% endif %}
+                {% if one.to_edit %}
+                    <td><button> <a href="/post/{{ one.id }}/edit/">Изменить</a> </button></td>
+                {% endif %}
+                {% if one.to_edit %}
+                    <td><button> <a href="/post/{{ one.id }}/delete/">Удалить</a> </button></td>
+                {% endif %}
                 <tr class="light">
-                    <td>{{ one.last_comment }} от {{ one.last_comment_author }}</td>
+                    <td>{{ one.last_comment }} {{ one.last_comment_author }}</td>
                 </tr>
            </tr>
            {% endfor %}
@@ -43,7 +52,7 @@
        </table>
     </div>
    {% else %}
-       <h2>{{ obj_type2 }} пока нет.</h2>
+       <h2>Объявлений пока нет.</h2>
    {% endif %}
 
 

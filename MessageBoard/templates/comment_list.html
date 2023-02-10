@@ -9,20 +9,14 @@ News
 {% endblock title %}
 
 {% block content %}
-<h1>Список новостей</h1>
-
-   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+<h1>Список комментариев на Ваши объявления</h1>
    <form action="" method="get">
-       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
        {{ filterset.form.as_p }}
-       {# Добавим кнопку отправки данных формы #}
        <input type="submit" value="Найти" />
    </form>
 
    <hr>
    <h3>Сегодня: {% current_time %} </h3>
-   <h3> Всего постов: {{ news_count }} </h3>
-
 
    {% if comment_flist %}
               <table class="table table-hover">
@@ -32,7 +26,7 @@ News
               <th scope="col">Автор</th>
               <th scope="col">Создано</th>
                 <th scope="col">Текст</th>
-                <th scope="col">Согласован автором</th>
+                <th scope="col">Согласован Вами</th>
             </tr>
           </thead>
   <tbody>
@@ -40,21 +34,23 @@ News
 
            {% for one in comment_flist %}
             <tr class="light">
-               <!-- Не забываем, что переменные в шаблоне ничем не отличаются
-                от переменных в Python. Здесь также можно получать доступ к
-                полям объекта модели. Например, здесь мы выводим имя,
-                в следующем столбце описание, и т.д.  -->
+
                 <td>{{ one.id }}</td>
                 <td>{{ one.user }}</td>
                <td>{{ one.creation|date:'d.M.Y' }}</td>
-               <td>{{ one.text|truncatechars:20|censor }}</td>
+               <td>{{ one.text|truncatechars:30|censor }}</td>
                 <td>{{ one.approved }}</td>
+                   {% if not one.approved %}
+                    <td><button> <a href="/post/comment/{{ one.id }}/approve/">Подтвердить</a></button></td>
+                {% endif %}
+                    <td><button> <a href="/post/comment/{{ one.id }}/delete/">Удалить</a></button></td>
+
            </tr>
            {% endfor %}
          </tbody>
        </table>
    {% else %}
-       <h2>Постов пока нет.</h2>
+       <h2>Комментариев пока нет.</h2>
    {% endif %}
 
 
