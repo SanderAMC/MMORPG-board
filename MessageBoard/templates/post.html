@@ -24,4 +24,27 @@
            </tr>
 
        </table>
+
+        <table>
+         <thead>
+         <h3>Комментарии к посту</h3>
+            <tr>
+              <th scope="col">Автор</th>
+              <th scope="col">Создано</th>
+                <th scope="col">Текст</th>
+                <th scope="col">Согласован</th>
+            </tr>
+          </thead>
+           {% for one in comments %}
+            <tr class="light">
+                <td>{{ one.user }}</td>
+               <td>{{ one.creation }}</td>
+                <td>{{ one.text }}</td>
+                <td>{{ one.approved }}</td>
+                <br>
+           </tr>
+           {% endfor %}
+        </table>
+
+
 {% endblock content %}

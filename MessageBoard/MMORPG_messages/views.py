@@ -61,7 +61,7 @@ class PostList(ListView):
             comment_list.append(obj)
 
         context['post_list'] = comment_list
-
+        # print(context)
         return context
 
 
@@ -122,6 +122,8 @@ class OnePost(DetailView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['user_name'] = self.request.user
+        context['comments'] = Comment.objects.filter(post=self.object.id)
+        # print(context)
         return context
 
 
