@@ -122,8 +122,7 @@ class OnePost(DetailView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['user_name'] = self.request.user
-        context['comments'] = Comment.objects.filter(post=self.object.id)
-        # print(context)
+        context['comments'] = Comment.objects.order_by('-creation').filter(post=self.object.id)
         return context
 
 
@@ -212,5 +211,5 @@ class PostDelete(DeleteView):
         return context
 
     def form_valid(self, form):
-        self.success_url = reverse_lazy('comment_search')
+        self.success_url = reverse_lazy('post_list')
         return super().form_valid(form)
