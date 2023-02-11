@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'ckeditor',
 
-    'MMORPG_messages',
+    'MMORPG_messages.apps.MMORPG_messagesConfig',
 
     'allauth',
     'allauth.account',
@@ -181,3 +181,8 @@ EMAIL_USE_SSL = True
 
 DEFAULT_FROM_EMAIL = os.getenv('DJ_DEFAULT_FROM_EMAIL')
 
+CELERY_BROKER_URL = os.getenv('REDIS_URL')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

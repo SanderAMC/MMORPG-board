@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import Post, Comment
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 from .filters import CommentFilter
@@ -11,6 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from itertools import chain
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from .tasks import send_email_by_approved
+
 
 def to_dict(obj):
     opts = obj._meta
@@ -21,11 +22,15 @@ def to_dict(obj):
         data[f.name] = [i.id for i in f.value_from_object(obj)]
     return data
 
+
 @login_required
 def approve_comment(request, *args, **kwargs):
     # print(kwargs)
     Comment.objects.filter(id=kwargs['pk']).update(approved=True)
+    comment = Comment.objects.get(id=kwargs['pk'])
+    send_email_by_approved.apply_async([comment.user.username, comment.post.id, comment.text], countdown=5)
     return redirect(request.META.get('HTTP_REFERER'))
+
 
 class PostList(ListView):
     model = Post
@@ -33,7 +38,6 @@ class PostList(ListView):
     template_name = 'post_list.html'
     context_object_name = 'post_list'
     paginate_by = 5
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -95,10 +99,12 @@ class UserView(LoginRequiredMixin, TemplateView):
             context['user_name'] = self.request.user
         return context
 
+
 class UserUpdate(LoginRequiredMixin, UpdateView):
     form_class = UserForm
     model = User
     template_name = 'user_edit.html'
+
     def form_valid(self, form):
         self.success_url = '/user/'
         return super().form_valid(form)
@@ -112,6 +118,7 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
         if self.request.user.is_authenticated:
             context['user_name'] = self.request.user
         return context
+
 
 class OnePost(DetailView):
     model = Post
@@ -130,6 +137,7 @@ class PostCreate(LoginRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+
     # permission_required = ('news.add_post', )
 
     def form_valid(self, form):
@@ -138,11 +146,11 @@ class PostCreate(LoginRequiredMixin, CreateView):
         self.success_url = reverse_lazy('post_list')
         return super().form_valid(form)
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_name'] = self.request.user
         return context
+
 
 class PostUpdate(LoginRequiredMixin, UpdateView):
     form_class = PostForm
@@ -164,12 +172,13 @@ class PostUpdate(LoginRequiredMixin, UpdateView):
         return super().get(request, *args, **kwargs) \
             if self.get_object().author == request.user else HttpResponse(status=403)
 
+
 class CommentCreate(LoginRequiredMixin, CreateView):
     form_class = CommentForm
     model = Comment
     template_name = 'comment_edit.html'
-    # permission_required = ('news.add_post', )
 
+    # permission_required = ('news.add_post', )
 
     def form_valid(self, form):
         comment = form.save(commit=False)
@@ -178,13 +187,13 @@ class CommentCreate(LoginRequiredMixin, CreateView):
         self.success_url = reverse_lazy('post_list')
         return super().form_valid(form)
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_name'] = self.request.user
         context['commented_post'] = f"{Post.objects.get(id=self.request.path.split('/')[-3]).title} " \
                                     f"автора {Post.objects.get(id=self.request.path.split('/')[-3]).author}"
         return context
+
 
 class CommentDelete(DeleteView):
     model = Comment
@@ -199,6 +208,7 @@ class CommentDelete(DeleteView):
     def form_valid(self, form):
         self.success_url = reverse_lazy('comment_search')
         return super().form_valid(form)
+
 
 class PostDelete(DeleteView):
     model = Post
