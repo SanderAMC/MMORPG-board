@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load custom_filters %}
+{% load custom_tags %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} за период с {{ date_from|date:'d.M.Y' }} по {{ date_to|date:'d.M.Y' }}.</title>
+</head>
+<body>
+    <h2>Здравствуй {{ user }}</h2>
+    <br><p>Объявления</p>
+    <p>за период с {{ date_from|date:'d.M.Y' }} по {{ date_to|date:'d.M.Y' }}.</p>
+    <br>
+           {% for one in posts %}
+               <td><a href={{ url_start }}post/{{ one.id }}> {{ one.id }} {{ one.title }} {{ one.creation|date:'d.M.Y' }} {{ one.text|truncatechars:20|censor }}</a>
+                <br>
+               </td>
+           {% endfor %}
+    <br><p>Комментарии</p>
+    <p>за период с {{ date_from|date:'d.M.Y' }} по {{ date_to|date:'d.M.Y' }}.</p>
+    <br>
+           {% for one in comments %}
+               <td>{{ one.id }} {{ one.user }} {{ one.creation|date:'d.M.Y' }} {{ one.text|truncatechars:20|censor }} {{ one.approved}}
+                <br>
+               </td>
+           {% endfor %}
+</body>
+</html>

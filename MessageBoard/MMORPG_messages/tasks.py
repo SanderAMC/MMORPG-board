@@ -64,49 +64,39 @@ def send_email_by_approved(user, post_id, text):
 
 @shared_task
 def inform_for_new_posts():
-    #  Your job processing logic here...
     print('Дайджест начал работу')
     date_from = date.today() - timedelta(days=8)
     date_to = date.today() - timedelta(days=1)
+    users = User.objects.all().values('first_name', 'last_name', 'username', 'email')
+
     post_source = Post.objects.filter(Q(creation__gte=date_from) & Q(creation__lt=date_to))
-    users = CategoryUser.objects.all().values('user_id').distinct()
-    title = f'Дайджест новых постов'
-    #    print(post_source)
+    comment_source = Comment.objects.filter(Q(creation__gte=date_from) & Q(creation__lt=date_to))
+
+    title = f'Дайджест новых объявлений и комментариев'
 
     for i in range(users.count()):
-        #        print(users[i]['user_id'])
-        categories = CategoryUser.objects.filter(user_id=users[i]['user_id']).values('category_id', 'category_id__name')
-        user = User.objects.filter(id=users[i]['user_id']).values('first_name', 'last_name', 'username', 'email')
-        user_name = f"{user[0]['first_name']} {user[0]['last_name']} ({user[0]['username']})"
-        for c in range(categories.count()):
-            category_name = categories[c]['category_id__name']
-            #            print(user)
-            #            print(category_name)
-            posts = post_source.filter(category__id=categories[c]['category_id'])
-            if posts.count() == 0:
-                continue
-            #            print(posts)
-            html_content = render_to_string(
+        user_name = f"{users[i]['first_name']} {users[i]['last_name']} ({users[i]['username']})"
+        html_content = render_to_string(
                 'post_digest.html',
                 {
                     'date_from': date_from,
                     'date_to': date_to,
                     'title': title,
                     'user': user_name,
-                    'category': category_name,
-                    'posts': posts,
+                    'posts': post_source,
+                    'comments': comment_source,
                     'url_start': 'http://127.0.0.1:8000/',
                 }
             )
-            #            print(html_content)
-            msg = EmailMultiAlternatives(
+        # print(html_content)
+        msg = EmailMultiAlternatives(
                 subject=title,
                 body=f'Дайджест новых постов с {date_from} по {date_to}.',  # это то же, что и message
                 from_email='hollyhome@yandex.ru',
-                to=[user[0]['email']],  # это то же, что и recipients_list
+                to=[users[i]['email']],  # это то же, что и recipients_list
             )
 
-            msg.attach_alternative(html_content, "text/html")  # добавляем html
-            msg.send()
+        msg.attach_alternative(html_content, "text/html")  # добавляем html
+        msg.send()
 
     print('Рассылка дайджеста завершена')

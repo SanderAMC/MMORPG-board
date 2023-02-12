@@ -15,7 +15,7 @@ app.conf.beat_schedule = {
     'inform_for_new_posts': {
         'task': 'MMORPG_messages.tasks.inform_for_new_posts',
         'schedule': crontab(hour=8, minute=0, day_of_week='monday'),
-#        'schedule': crontab(),
+       # 'schedule': crontab(),
         'args': (),
     },
 }
