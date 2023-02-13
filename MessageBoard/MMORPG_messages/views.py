@@ -86,7 +86,8 @@ class CommentListFiltered(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Comment.objects.order_by('-creation').filter(post__in=Post.objects.filter(author=self.request.user))
-        self.filterset = CommentFilter(self.request.GET, queryset)
+        print(self.request.GET)
+        self.filterset = CommentFilter(self.request.GET, queryset, request=self.request)
         return self.filterset.qs
 
 

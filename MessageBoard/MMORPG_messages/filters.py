@@ -5,10 +5,7 @@ from django import forms
 
 
 class CommentFilter(FilterSet):
-    post = django_filters.ChoiceFilter(
-        choices=lambda: [(p.id, f'{p.id} - {p.title} - {p.creation.strftime("%d-%m-%Y %H:%M")}')
-                         for p in Post.objects.filter().order_by('-creation')], label="Сообщение:",
-                            empty_label="Все сообщения")
+    post = django_filters.ChoiceFilter(choices=None, label="Сообщение:", empty_label="Все сообщения")
 
     creation = django_filters.DateFilter(widget=forms.DateInput(attrs={'type': 'date'}),
                                          label="Создано позднее, чем ", lookup_expr='date__gt')
@@ -23,8 +20,10 @@ class CommentFilter(FilterSet):
             # 'approved'
         }
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     request = kwargs['request']
-    #     my_choices = ...
-    #     self.filters['post'].extra.update({'choices': my_choices})
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = kwargs['request']
+        # print(request.user.id)
+        my_choices = lambda: [(p.id, f'{p.id} - {p.title} - {p.creation.strftime("%d-%m-%Y %H:%M")}')
+                                 for p in Post.objects.filter(author=request.user).order_by('-creation')]
+        self.filters['post'].extra.update({'choices': my_choices})
