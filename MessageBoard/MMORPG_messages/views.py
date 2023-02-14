@@ -131,6 +131,11 @@ class OnePost(DetailView):
         if self.request.user.is_authenticated:
             context['user_name'] = self.request.user
         context['comments'] = Comment.objects.order_by('-creation').filter(post=self.object.id)
+
+        obj = to_dict(context['one_post'])
+        obj['category'] = [_[1] for _ in Post.TYPES if _[0] == obj['category']][0]
+        context['one_post'] = obj
+
         return context
 
 

@@ -10,16 +10,20 @@
     <h3>Сегодня: {% current_time '%d %b %Y' %} </h3>
     <h2> Пост {{ one_post.title|censor }} от : {{ one_post.creation|date:'d.m.Y' }} </h2>
        <table>
-           <tr>
-               <td>Полный текст:</td>
-           </tr>
-
+           <thead>
+            <tr>
+              <th scope="col">Категория</th>
+                <th scope="col">Название</th>
+                <th scope="col">Текст</th>
+            </tr>
+          </thead>
+        <tbody>
            <tr>
                <td>{{ one_post.category}}</td>
                <td>{{ one_post.title}}</td>
                <td>{{ one_post.content|safe }}</td>
            </tr>
-
+    </tbody>
        </table>
 
         {% if comments %}
